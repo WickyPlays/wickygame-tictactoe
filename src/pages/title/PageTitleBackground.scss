@@ -1,0 +1,15 @@
+.page-title-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #d1d1d182;
+  z-index: -1;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url('../../assets/bg.jpg');
+  background-size: cover;
+}
