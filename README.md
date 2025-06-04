@@ -1,15 +1,17 @@
-Welcome to WickyGame's Sliding Tile Game!
+Welcome to WickyGame's Tic-Tac-Toe!
 
 Version 1.0.0
 
 ## About WickyGame
 
 WickyGame a collection of games that I personally made that is not affiliated with any companies in any way. The games can be both open-source or closed-source.
-## About Sliding Tile Game
+## About Tic-Tac-Toe
 
-It's a tile-based game where you have to arrange the tiles in numerical order from left to right, top to bottom.
+Tic-Tac-Toe is a simple and classic two-player game, usually played on a 3x3 grid. One player uses the symbol "X" and the other uses "O". Players take turns placing their symbol in an empty square on the grid.
 
-You can select different grid sizes (3x3 to 10x10) from the menu for harder challenges.
+To play, players decide who goes first, then alternate turns placing their symbol in one of the nine squares. The goal is to be the first to create a line of three of your symbols either horizontally, vertically, or diagonally. If all squares are filled and no player has three in a row, the game ends in a draw.
+
+To win, a player must carefully observe the board, plan ahead, and try to block the opponent's moves while creating their own line of three. Strategic thinking and anticipating the opponent’s next step are key to winning in Tic-Tac-Toe.
 ## Changelogs
 Using MM/dd/yyy time
 
