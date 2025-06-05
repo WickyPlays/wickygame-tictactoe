@@ -1,0 +1,17 @@
+.digit-clock-display {
+  display: flex;
+  font-family: "Digit", monospace;
+  font-size: 2rem;
+  color: #ffffff;
+  background-color: #000;
+  padding: 1px 20px;
+
+  .digit {
+    display: inline-block;
+    text-align: center;
+
+    &.colon {
+      min-width: 0.5em;
+    }
+  }
+}

@@ -1,239 +1,233 @@
-import { globalEvents } from "./GlobalEventHandler";
-
-type GameStatus = "waiting" | "playing" | "finished";
-type GameTile = {
-  id: number;
-  attribute: {
-    row: number;
-    col: number;
-    num: number;
-    empty: boolean;
-    style?: React.CSSProperties;
-    backgroundPosition?: string;
-  };
-};
-
 export class GameCore {
-  public status: GameStatus = "waiting";
-  public tileNumber: number = 3;
-  public board: GameTile[] = [];
-  private moves: number = 0;
-  private startTime = new Date();
+  private readonly humanPlayer: string = "X";
+  private readonly aiPlayer: string = "O";
+  private readonly emptySpot: string = " ";
+  private firstMove: boolean = true;
 
-  constructor(tileNumber: number = 3) {
-    this.setTileNumber(tileNumber);
+  // AI difficulty settings (0 = easy, 1 = hard)
+  private aiDifficulty: number = 0.8;
+  private readonly winningCombinations: number[][] = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+
+  private board: string[];
+  private currentPlayer: string;
+
+  constructor(difficulty: number = 0.8) {
+    this.board = Array(9).fill(this.emptySpot);
+    this.currentPlayer = this.humanPlayer;
+    this.firstMove = true;
+    this.setDifficulty(difficulty);
   }
 
-  public setTileNumber(tileNumber: number) {
-    this.tileNumber = tileNumber;
+  // Set AI difficulty (0 = easy, 1 = hard)
+  public setDifficulty(difficulty: number): void {
+    this.aiDifficulty = Math.max(0, Math.min(1, difficulty));
   }
 
- public setupBoard() {
-  this.status = "waiting";
-  this.board = [];
-
-  for (let col = 0; col < this.tileNumber; col++) {
-    for (let row = 0; row < this.tileNumber; row++) {
-      const backgroundPosition = `${(col / (this.tileNumber - 1)) * 100}% ${(row / (this.tileNumber - 1)) * 100}%`;
-      
-      this.board.push({
-        id: row * this.tileNumber + col,
-        attribute: {
-          row,
-          col,
-          num: row * this.tileNumber + col + 1,
-          empty: false,
-          style: { 
-            backgroundColor: "red", 
-            color: "white",
-            backgroundPosition: backgroundPosition,
-            backgroundSize: `${this.tileNumber * 100}%`
-          },
-          backgroundPosition: backgroundPosition
-        },
-      });
+  // Print the board to console
+  public printBoard(): void {
+    for (let i = 0; i < 3; i++) {
+      console.log(this.board.slice(i * 3, i * 3 + 3).join(" | "));
+      if (i < 2) console.log("--+---+--");
     }
   }
 
-  let emptyTile = this.board[this.tileNumber * this.tileNumber - 1];
-  emptyTile.attribute.empty = true;
-  emptyTile.attribute.style = { 
-    backgroundColor: "#16a800", 
-    color: "black",
-    backgroundImage: 'none'
-  };
-  this.startTime = new Date()
-  this.status = "playing";
-}
-
-  public getTiles() {
-    return this.board;
-  }
-
-  public getStatus() {
-    return this.status;
-  }
-
-  public getStartTime() {
-    return this.startTime;
-  }
-
-  public selectTile(tile: GameTile) {
-    if (this.status !== "playing") return this.board;
-
-    let emptyTile = this.board.find((tile) => tile.attribute.empty)!;
-    if (this.getMovableTiles().includes(tile)) {
-      const tempNum = tile.attribute.num;
-      tile.attribute.num = emptyTile.attribute.num;
-      emptyTile.attribute.num = tempNum;
-
-      tile.attribute.empty = !tile.attribute.empty;
-      emptyTile.attribute.empty = !emptyTile.attribute.empty;
-
-      const tempStyle = tile.attribute.style;
-      tile.attribute.style = emptyTile.attribute.style;
-      emptyTile.attribute.style = tempStyle;
-
-      this.moves += 1;
-
-      if (this.isBoardWin()) {
-        this.status = "finished";
-      }
-
-      globalEvents.emit("tileMoved", { game: this, board: this.board });
-      return this.board;
-    }
-    globalEvents.emit("tileMoved", { game: this, board: this.board });
-
-    return this.board;
-  }
-
-  public getMovableTiles() {
-    let emptyTile: GameTile = this.board.find((tile) => tile.attribute.empty)!;
-
-    if (emptyTile) {
-      let upTile = this.board.find(
-        (tile) =>
-          tile.attribute.row === emptyTile.attribute.row &&
-          tile.attribute.col === emptyTile.attribute.col - 1
-      );
-      let downTile = this.board.find(
-        (tile) =>
-          tile.attribute.row === emptyTile.attribute.row &&
-          tile.attribute.col === emptyTile.attribute.col + 1
-      );
-      let leftTile = this.board.find(
-        (tile) =>
-          tile.attribute.row === emptyTile.attribute.row - 1 &&
-          tile.attribute.col === emptyTile.attribute.col
-      );
-      let rightTile = this.board.find(
-        (tile) =>
-          tile.attribute.row === emptyTile.attribute.row + 1 &&
-          tile.attribute.col === emptyTile.attribute.col
-      );
-
-      return [upTile, downTile, leftTile, rightTile].filter(
-        (tile) => tile !== undefined
-      );
-    }
-    return emptyTile;
-  }
-
-  public shuffleBoard() {
-    const shuffleMoves = this.tileNumber * 100;
-
-    for (let i = 0; i < shuffleMoves; i++) {
-      const emptyTile = this.board.find((tile) => tile.attribute.empty)!;
-      const movableTiles = this.getMovableTiles();
-
-      if (movableTiles.length > 0) {
-        const randomIndex = Math.floor(Math.random() * movableTiles.length);
-        const randomTile = movableTiles[randomIndex];
-
-        const tempNum = randomTile.attribute.num;
-        const tempStyle = randomTile.attribute.style;
-
-        randomTile.attribute.num = emptyTile.attribute.num;
-        randomTile.attribute.style = emptyTile.attribute.style;
-        randomTile.attribute.empty = true;
-
-        emptyTile.attribute.num = tempNum;
-        emptyTile.attribute.style = tempStyle;
-        emptyTile.attribute.empty = false;
+  // Check if a player has won
+  public checkWinner(player: string): boolean {
+    for (const combo of this.winningCombinations) {
+      if (combo.every((index) => this.board[index] === player)) {
+        return true;
       }
     }
-    globalEvents.emit("tileMoved", { game: this, board: this.board });
+    return false;
   }
 
-  public getMoves() {
-    return this.moves;
+  // Check if the game is a draw
+  public checkDraw(): boolean {
+    return this.board.every((cell) => cell !== this.emptySpot);
   }
 
-  public resetGame() {
-    this.moves = 0;
-    this.setupBoard();
-    this.shuffleBoard();
-    globalEvents.emit("tileMoved", { game: this, board: this.board });
+  // Check if a move is valid
+  public isMoveValid(move: number): boolean {
+    return this.board[move] === this.emptySpot;
   }
 
-  public displayBoard() {
-    console.log(
-      this.board
-        .map((tile, i) => {
-          return i % this.tileNumber === 0
-            ? `\n${JSON.stringify({
-                r: tile.attribute.row,
-                c: tile.attribute.col,
-                e: tile.attribute.empty,
-              })}`
-            : JSON.stringify({
-                r: tile.attribute.row,
-                c: tile.attribute.col,
-                e: tile.attribute.empty,
-              });
-        })
-        .join(",")
-    );
+  // Minimax algorithm for AI decision making
+  private minimax(
+    board: string[],
+    depth: number,
+    isMaximizing: boolean
+  ): number {
+    if (this.checkWinner(this.aiPlayer)) {
+      return 10 - depth;
+    } else if (this.checkWinner(this.humanPlayer)) {
+      return depth - 10;
+    } else if (this.checkDraw()) {
+      return 0;
+    }
+
+    if (isMaximizing) {
+      let bestScore = -Infinity;
+      for (let i = 0; i < board.length; i++) {
+        if (board[i] === this.emptySpot) {
+          board[i] = this.aiPlayer;
+          const score = this.minimax(board, depth + 1, false);
+          board[i] = this.emptySpot;
+          bestScore = Math.max(score, bestScore);
+        }
+      }
+      return bestScore;
+    } else {
+      let bestScore = Infinity;
+      for (let i = 0; i < board.length; i++) {
+        if (board[i] === this.emptySpot) {
+          board[i] = this.humanPlayer;
+          const score = this.minimax(board, depth + 1, true);
+          board[i] = this.emptySpot;
+          bestScore = Math.min(score, bestScore);
+        }
+      }
+      return bestScore;
+    }
   }
 
-  public getWinningBoard(): GameTile[] {
-    const winningBoard: GameTile[] = [];
-    for (let col = 0; col < this.tileNumber; col++) {
-      for (let row = 0; row < this.tileNumber; row++) {
-        winningBoard.push({
-          id: row * this.tileNumber + col,
-          attribute: {
-            row,
-            col,
-            num: row * this.tileNumber + col + 1,
-            empty: row === this.tileNumber - 1 && col === this.tileNumber - 1,
-            style: row === this.tileNumber - 1 && col === this.tileNumber - 1 
-              ? { backgroundColor: "#16a800", color: "black" }
-              : { backgroundColor: "red", color: "white" }
-          },
-        });
+  // AI finds the best move
+  public findBestMove(): number {
+    // Sometimes make a random move based on difficulty
+    if (Math.random() > this.aiDifficulty) {
+      const availableMoves = this.board
+        .map((value, index) => (value === this.emptySpot ? index : -1))
+        .filter((index) => index !== -1);
+      if (availableMoves.length > 0) {
+        return availableMoves[
+          Math.floor(Math.random() * availableMoves.length)
+        ];
       }
     }
-    return winningBoard;
-  }
 
-  public isBoardWin(): boolean {
-    const winningBoard = this.getWinningBoard();
-    if (this.board.length !== winningBoard.length) return false;
+    let bestScore = -Infinity;
+    let bestMoves: number[] = []; // Store all equally good moves
 
     for (let i = 0; i < this.board.length; i++) {
-      const currentTile = this.board[i];
-      const winningTile = winningBoard[i];
+      if (this.board[i] === this.emptySpot) {
+        this.board[i] = this.aiPlayer;
+        const score = this.minimax(this.board, 0, false);
+        this.board[i] = this.emptySpot;
 
-      if (
-        currentTile.attribute.num !== winningTile.attribute.num ||
-        currentTile.attribute.empty !== winningTile.attribute.empty
-      ) {
-        return false;
+        if (score > bestScore) {
+          bestScore = score;
+          bestMoves = [i];
+        } else if (score === bestScore) {
+          bestMoves.push(i);
+        }
       }
     }
 
-    return true;
+    // If multiple equally good moves, choose randomly among them
+    if (bestMoves.length > 0) {
+      // For first move, sometimes choose a random corner (giving fairness)
+      if (this.firstMove && Math.random() < 0.7) {
+        // 70% chance to pick random corner first move (70% is enough?)
+        this.firstMove = false;
+        const corners = [0, 2, 6, 8];
+        const availableCorners = corners.filter(
+          (c) => this.board[c] === this.emptySpot
+        );
+        if (availableCorners.length > 0) {
+          return availableCorners[
+            Math.floor(Math.random() * availableCorners.length)
+          ];
+        }
+      }
+
+      return bestMoves[Math.floor(Math.random() * bestMoves.length)];
+    }
+
+    // Fallback (shouldn't normally happen)
+    const availableMoves = this.board
+      .map((value, index) => (value === this.emptySpot ? index : -1))
+      .filter((index) => index !== -1);
+    return availableMoves.length > 0
+      ? availableMoves[Math.floor(Math.random() * availableMoves.length)]
+      : -1;
+  }
+
+  // Make a human move
+  public humanMove(move: number): boolean {
+    if (
+      move >= 0 &&
+      move < 9 &&
+      this.isMoveValid(move) &&
+      this.currentPlayer === this.humanPlayer
+    ) {
+      this.board[move] = this.humanPlayer;
+      this.currentPlayer = this.aiPlayer;
+      return true;
+    }
+    return false;
+  }
+
+  // Make an AI move
+  public aiMove(): void {
+    if (this.currentPlayer === this.aiPlayer) {
+      const move = this.findBestMove();
+      if (move !== -1) {
+        this.board[move] = this.aiPlayer;
+      }
+      this.currentPlayer = this.humanPlayer;
+    }
+  }
+
+  // Get current game status
+  public getGameStatus(): {
+    winner: string | null;
+    isDraw: boolean;
+    gameOver: boolean;
+  } {
+    if (this.checkWinner(this.humanPlayer)) {
+      return { winner: this.humanPlayer, isDraw: false, gameOver: true };
+    } else if (this.checkWinner(this.aiPlayer)) {
+      return { winner: this.aiPlayer, isDraw: false, gameOver: true };
+    } else if (this.checkDraw()) {
+      return { winner: null, isDraw: true, gameOver: true };
+    }
+    return { winner: null, isDraw: false, gameOver: false };
+  }
+
+  public getWinningCombo(): number[] | null {
+    for (const combo of this.winningCombinations) {
+      if (combo.every((index) => this.board[index] === this.humanPlayer)) {
+        return combo;
+      }
+      if (combo.every((index) => this.board[index] === this.aiPlayer)) {
+        return combo;
+      }
+    }
+    return null;
+  }
+
+  // Reset the game
+  public reset(): void {
+    this.board = Array(9).fill(this.emptySpot);
+    this.currentPlayer = this.humanPlayer;
+    this.firstMove = true;
+  }
+
+  // Get current board state
+  public getBoard(): string[] {
+    return [...this.board];
+  }
+
+  // Get current player
+  public getCurrentPlayer(): string {
+    return this.currentPlayer;
   }
 }

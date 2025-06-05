@@ -1,0 +1,17 @@
+.digit-display {
+  display: flex;
+  font-family: 'Digit', monospace;
+  font-size: 30px;
+  color: white;
+  background-color: black;
+  padding: 1px 20px;
+
+  .digit {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+
+    &.leading-zero {
+      opacity: 0.3 !important;
+    }
+  }
+}

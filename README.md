@@ -15,7 +15,7 @@ To win, a player must carefully observe the board, plan ahead, and try to block 
 ## Changelogs
 Using MM/dd/yyy time
 
-1.0.0 (4/6/25): A fresh new beginning
+1.0.0 (5/6/25): A fresh new beginning
 ## Feedback
 
 If you have any feedback, please reach out to us via Github Issues or at baottworkspace@gmail.com

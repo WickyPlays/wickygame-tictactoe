@@ -37,12 +37,6 @@ export default function PageTitle() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleTileChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newTileNumber = parseInt(event.target.value);
-    setTileNumber(newTileNumber);
-    setCookie("tileNumber", newTileNumber.toString(), 30);
-  };
-
   const toggleInfo = () => {
     setShowInfo(!showInfo);
   };
@@ -50,10 +44,6 @@ export default function PageTitle() {
   return (
     <div className={`page-title ${mounted ? "mounted" : ""}`}>
       <PageTitleBackground />
-      <button className="info-button" onClick={toggleInfo}>
-        <MdInfo size={24} />
-        <span>How to play</span>
-      </button>
       <div className="text-container">
         <div className="title-container">
           <img src={logo} alt="Logo" className="logo" />
@@ -68,7 +58,7 @@ export default function PageTitle() {
         <div className="footer-left">
           <GrGithub />
           <p>
-            <a href="https://github.com/WickyPlays/wicky-game-sliding-tile">
+            <a href="https://github.com/WickyPlays/wickygame-tictactoe" target="_blank">
               Github
             </a>
           </p>
@@ -76,24 +66,6 @@ export default function PageTitle() {
         <>
           <a href="https://ko-fi.com/Wicky">Consider donating via my ko.fi!</a>
         </>
-      </div>
-
-      {/* Info Dialog */}
-      <div
-        className={`info-dialog ${showInfo ? "visible" : ""}`}
-        ref={dialogRef}
-      >
-        <div className="info-dialog-header">
-          <h2>How to Play</h2>
-          <button className="close-button" onClick={toggleInfo}>
-            <MdClose size={24} />
-          </button>
-        </div>
-        <div className="info-dialog-content">
-          <ol>
-            <li>Coming soon!</li>
-          </ol>
-        </div>
       </div>
     </div>
   );
