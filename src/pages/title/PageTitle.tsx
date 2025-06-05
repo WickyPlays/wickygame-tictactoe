@@ -1,15 +1,14 @@
 import { useState, useEffect, useRef } from "react";
-import { MdInfo, MdClose } from "react-icons/md";
 import "./PageTitle.scss";
 import PageTitleBackground from "./PageTitleBackground";
-import { getCookie, setCookie } from "../../utils/util_cookie";
+import { getCookie } from "../../utils/util_cookie";
 import { Link } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import { GrGithub } from "react-icons/gr";
 
 export default function PageTitle() {
-  const [tileNumber, setTileNumber] = useState<number>(3);
-  const [showInfo, setShowInfo] = useState<boolean>(false);
+  const [, setTileNumber] = useState<number>(3);
+  const [, setShowInfo] = useState<boolean>(false);
   const [mounted, setMounted] = useState<boolean>(false);
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -36,10 +35,6 @@ export default function PageTitle() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const toggleInfo = () => {
-    setShowInfo(!showInfo);
-  };
 
   return (
     <div className={`page-title ${mounted ? "mounted" : ""}`}>

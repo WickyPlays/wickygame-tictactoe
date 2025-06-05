@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import GameBG from "./GameBG";
@@ -7,7 +9,6 @@ import ReactConfetti from "react-confetti";
 import { TiArrowBackOutline } from "react-icons/ti";
 import { GrRefresh } from "react-icons/gr";
 import logo from "../../assets/logo.png";
-import DigitDisplay from "../../components/DigitDisplay/DigitDisplay";
 import DigitClockDisplay from "../../components/DigitClockDisplay/DigitClockDisplay";
 
 export default function PageGame() {

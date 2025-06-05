@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import "./PageTitleBackground.scss";
 
 export default function PageTitleBackground() {
